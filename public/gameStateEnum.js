@@ -1,6 +1,8 @@
 const GameStates = {
     LOADING: 'loading',
     LOCKED: 'locked',
-    OPEN: 'open'
+    OPEN: 'open',
+    BUZZED: 'buzzed'
 }
-exports = {GameStates}
+
+module.exports = {GameStates}

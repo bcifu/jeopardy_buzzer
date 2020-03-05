@@ -2,18 +2,82 @@ extends layout.pug
 
 block scripts
     script.
-        var socket = io()
-        buzzedList = []
-        playersList = []
-        status = GameStates.LOADING
-        socket.on('connect', () => {
-            socket.emit('setUpHost', (statusRes, players, buzzed) => {
-                status = statusRes
+        $(document).ready(function (){
+            var socket = io('/host')
+            buzzedList = []
+            playersList = []
+            status = 'loading'
+            GameStates = {}
+
+            function updatePlayers() {
+                $("#ul").empty();
+                for(player of playersList){               
+                    $("#ul").append("<li id='player'>" + player + "</li>")
+                }
+            }
+
+            function updateStatus() {
+                $('#status').text("Status: " + status)    
+            }
+
+            function updateLockButton(){
+                if(status == GameStates.OPEN){
+                    $("#locker").removeClass('btn-success').addClass('btn-danger').empty().append("Lock")
+                } else if (status = GameStates.LOCKED){
+                    $("#locker").removeClass('btn-danger').addClass('btn-success').empty().append("Unlock")
+                }
+            }
+
+            socket.on('connect', () => {
+                //this function does not seem to be running
+                socket.emit('setUpHost', (statusRes, players, buzzed, GameStatesReturn) => {
+                    status = statusRes
+                    playersList = players
+                    buzzedList = buzzed
+                    GameStates = GameStatesReturn
+                    updateStatus()
+                    //set the button correctly based on status 
+                    updatePlayers()
+                    updateLockButton();
+                });
+            });
+
+            socket.on('updatePlayers', (players) => {
                 playersList = players
-                buzzedList = buzzed
-                console.log(playersList)             
-           })
+                updatePlayers()
+            })
+
+            $("#locker").click(() => {
+                socket.emit('changeStatus', status, (newStatus) => {
+                    status = newStatus
+                    updateLockButton()
+                    updateStatus()
+                });
+            });
+
+            $("#clear").click(() => {
+                
+            })
         })
+        
+
 
 block content
-    div(class="container")
+    div(id="main", class="container flex-fill")
+        h2#status Status: loading
+        div(class="container" id="buttons")
+            div(class="row")
+                div(class="column")
+                    button(id="locker" type="button" class="btn btn-danger") Lock
+                div(class="column")
+                    button(id="clear" type="button" class="btn btn-secondary") Reset
+
+        //What to have
+        //Open/Lock Button
+        //Buzz List
+        //Clear
+        #players
+            h6 Joined Players
+            ul#ul
+        
+

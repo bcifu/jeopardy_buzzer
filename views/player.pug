@@ -2,15 +2,61 @@ extends layout.pug
 
 block scripts
     script.
-        var socket = io();
-        socket.on('connect', () => {
-            var data = {name: window.location.href.substring(window.location.href.search("player/") + 7), userId: socket.id}
-            socket.emit('addPlayer', data);
-            $("#main").show()            
-        })
-        //put rest of events out here.
+        $(document).ready(function (){
+            var socket = io();
+            var state = "loading";
+            var GameStates = {}
+            var divNames = ["#loading", "#buzzed", "#locked", "#open"]
+            function hideShow(show){
+                for(div of divNames){
+                    console.log(div)
+                    $(div).hide()
+                }
+                $(show).show()
+            }
+            hideShow("#loading");
+
+            socket.on('connect', function() {
+                var data = {name: window.location.href.substring(window.location.href.search("player/") + 7), userId: socket.id}
+                socket.emit('addPlayer', data, (returnedStatus, GameStatesReturn) => {
+                    GameStates = GameStatesReturn; 
+                    state = returnedStatus
+                    switch(state){
+                        case GameStates.LOADING:
+                            hideShow("#loading")
+                            break
+                        case GameStates.LOCKED:
+                            hideShow("#locked")
+                            break
+                        case GameStates.OPEN:
+                            hideShow("#open")
+                            break
+                        case GameStates.BUZZED:
+                            hideShow("#buzzed")
+                            break
+                    }
+                });      
+            });
+            //put rest of events out here.                              
+        });
+        
+
+block style
+    style.
+        #main{
+            padding: 0;
+            width: 100%;
+            height: 100%
+        }
 
 block content
-    div(class="container" id="main")
-        h2 test
+    div(class="container flex-fill" id="main")
+        #loading
+            h1 loading
+        #buzzed
+            h1 buzzed
+        #locked
+            h1 locked
+        #open
+            h1 open
         

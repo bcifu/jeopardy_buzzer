@@ -3,7 +3,18 @@ const app = express();
 var http = require('http').createServer(app);
 app.set('view engine', 'pug');
 var io = require("socket.io")(http);
-const GameStates = require('./public/gameStateEnum')
+const {GameStates} = require('./public/gameStateEnum')
+
+Array.prototype.remove = function () {
+    var what, a = arguments, L = a.length, ax;
+    while (L && this.length) {
+        what = a[--L];
+        while ((ax = this.indexOf(what)) !== -1) {
+            this.splice(ax, 1);
+        }
+    }
+    return this;
+};
 
 app.use(express.static('public'))
 
@@ -23,31 +34,48 @@ app.get('/player/*', function(req, res){
 })
 
 players = {}
+hostIds = []
 buzzed = []
-status = GameStates.LOADING
+status = GameStates.OPEN
 
 io.on('connection', function (socket) {
-    socket.on('button_press', function(msg){
-        console.log('message: ' + msg);
-    });
-
-    socket.on('addPlayer', function(data){
+    socket.on('addPlayer', function(data, fn){
         players[data['userId']] = data['name'];
+        fn(status, GameStates)
+        io.of('/host').emit('updatePlayers', Object.values(players));
         console.log(players)
     })
 
-    socket.on('setUpHost', (fn) => {
-        fn(status, players, buzzed);
-    })
-
     socket.on('disconnect', (reason) => {
-        console.log('disconnect ' + socket.id)
         if(socket.id in players){
             delete players[socket.id];
-            console.log(players)
+            io.of('/host').emit('updatePlayers', Object.values(players));
         }       
     })
 });
+
+io.of('/host').on('connect', (socket) => {
+    hostIds.push(socket.id);
+
+    socket.on('setUpHost', (fn) => {
+        fn(status, Object.values(players), buzzed, GameStates);
+    })
+
+    socket.on('disconnect', () => {
+        hostIds.remove(socket.id)
+    })
+
+    socket.on('changeStatus', (oldStatus, fn) => {
+        if(oldStatus == GameStates.OPEN){
+            status = GameStates.LOCKED
+            fn(status)
+        } else if (oldStatus == GameStates.LOCKED){
+            status = GameStates.OPEN
+            fn(status)
+        }
+        console.log(status)
+    })
+})
 
 http.listen(3000, function () {
     console.log('listening on *:3000');
