@@ -5,17 +5,6 @@ app.set('view engine', 'pug');
 var io = require("socket.io")(http);
 const {GameStates} = require('./public/gameStateEnum')
 
-Array.prototype.remove = function () {
-    var what, a = arguments, L = a.length, ax;
-    while (L && this.length) {
-        what = a[--L];
-        while ((ax = this.indexOf(what)) !== -1) {
-            this.splice(ax, 1);
-        }
-    }
-    return this;
-};
-
 app.use(express.static('public'))
 
 app.get('/', function (req, res) {
@@ -32,8 +21,7 @@ app.get('/player/*', function(req, res){
 })
 
 players = {}
-//TODO: why do I need host id's I thikn I can remove
-hostIds = []
+//TODO: why do I need host id's I thikn I can removeh
 buzzed = []
 status = GameStates.OPEN
 
@@ -61,7 +49,6 @@ io.of('/player').on('connect', (socket) => {
 })
 
 io.of('/host').on('connect', (socket) => {
-    hostIds.push(socket.id);
 
     socket.on('clearBuzzing', (fn) => {
         buzzed = []
@@ -71,10 +58,6 @@ io.of('/host').on('connect', (socket) => {
 
     socket.on('setUpHost', (fn) => {
         fn(status, Object.values(players), buzzed, GameStates);
-    })
-
-    socket.on('disconnect', () => {
-        hostIds.remove(socket.id)
     })
 
     socket.on('changeStatus', (oldStatus, fn) => {
