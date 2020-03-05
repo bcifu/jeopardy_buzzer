@@ -1,1 +1,15 @@
 extends layout.pug
+
+block scripts
+    script.
+        var socket = io();
+        socket.on('connect', () => {
+            var data = {name: window.location.href.substring(window.location.href.search("player/") + 7), userId: socket.id}
+            socket.emit('addPlayer', data);
+            $("#main").show()
+        })
+
+block content
+    div(class="container" id="main")
+        h2 test
+        

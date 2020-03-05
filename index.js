@@ -14,9 +14,24 @@ app.get('/player/*', function(req, res){
     res.render('player', {player: "test"})   
 })
 
+players = {}
+
 io.on('connection', function (socket) {
+    myUserId = undefined;
+
     socket.on('button_press', function(msg){
         console.log('message: ' + msg);
+    });
+
+    socket.on('addPlayer', function(data){
+        players[data['userId']] = data['name'];
+        myUserId = data['userId']
+        console.log(players)
+    })
+
+    socket.on('disconnect', (reason) => {
+        delete players[myUserId];
+        console.log(players)
     })
 });
 
