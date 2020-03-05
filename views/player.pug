@@ -9,7 +9,6 @@ block scripts
             var divNames = ["#loading", "#buzzed", "#locked", "#open"]
             function hideShow(show){
                 for(div of divNames){
-                    console.log(div)
                     $(div).hide()
                 }
                 $(show).show()
@@ -56,7 +55,12 @@ block scripts
                     status = GameStates.BUZZED
                     updateShowing()
                 });
-            });          
+            });
+
+            socket.on('clearBuzz', (newStatus) => {
+                status = newStatus
+                updateShowing()
+            })          
         });
         
 

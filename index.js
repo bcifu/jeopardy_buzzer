@@ -32,6 +32,7 @@ app.get('/player/*', function(req, res){
 })
 
 players = {}
+//TODO: why do I need host id's I thikn I can remove
 hostIds = []
 buzzed = []
 status = GameStates.OPEN
@@ -61,6 +62,12 @@ io.of('/player').on('connect', (socket) => {
 
 io.of('/host').on('connect', (socket) => {
     hostIds.push(socket.id);
+
+    socket.on('clearBuzzing', (fn) => {
+        buzzed = []
+        fn(buzzed)
+        io.of('/player').emit('clearBuzz', status);
+    })
 
     socket.on('setUpHost', (fn) => {
         fn(status, Object.values(players), buzzed, GameStates);

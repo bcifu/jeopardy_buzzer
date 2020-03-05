@@ -10,7 +10,7 @@ block scripts
             GameStates = {}
 
             function updatePlayers() {
-                $("#joinedPlayer").empty();
+                $("#joinedPlayers").empty();
                 for(player of playersList){               
                     $("#joinedPlayers").append("<li id='player'>" + player + "</li>")
                 }
@@ -52,6 +52,7 @@ block scripts
             socket.on('updatePlayers', (players) => {
                 playersList = players
                 updatePlayers()
+                console.log('update ' + playersList)
             })
 
             socket.on('buzzedIn', (buzzed) => {
@@ -68,7 +69,10 @@ block scripts
             });
 
             $("#clear").click(() => {
-                
+                socket.emit('clearBuzzing', (buzzed) => {
+                    buzzedList = buzzed
+                    updateBuzzed();
+                })
             })
         })
         

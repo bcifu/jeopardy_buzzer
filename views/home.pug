@@ -25,6 +25,17 @@ block scripts
                 }             
             });
 
+            $("#name").keypress((e) => {             
+                if(e.which == 13){
+                    e.preventDefault()
+                    if($("#name").val().replace(/\s/g,'') == '' || $("#name").val().replace(/\s/g,'') == undefined){
+                        $("#warning").show()
+                    } else {
+                        window.location.href = '/player/' + $("#name").val().replace(/\s/g,'');
+                    }
+                }
+            })
+
             $("#host").click(() => {
                 window.location.href = '/host'
             })
