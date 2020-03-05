@@ -3,8 +3,8 @@ extends layout.pug
 block scripts
     script.
         $(document).ready(function (){
-            var socket = io();
-            var state = "loading";
+            var socket = io('/player');
+            var status = "loading";
             var GameStates = {}
             var divNames = ["#loading", "#buzzed", "#locked", "#open"]
             function hideShow(show){
@@ -14,49 +14,99 @@ block scripts
                 }
                 $(show).show()
             }
+
+            function updateShowing(){
+                switch(status){
+                    case GameStates.LOADING:
+                        hideShow("#loading")
+                        break
+                    case GameStates.LOCKED:
+                        hideShow("#locked")
+                        break
+                    case GameStates.OPEN:
+                        hideShow("#open")
+                        break
+                    case GameStates.BUZZED:
+                        hideShow("#buzzed")
+                        break
+                }
+            }
+
             hideShow("#loading");
 
             socket.on('connect', function() {
                 var data = {name: window.location.href.substring(window.location.href.search("player/") + 7), userId: socket.id}
                 socket.emit('addPlayer', data, (returnedStatus, GameStatesReturn) => {
                     GameStates = GameStatesReturn; 
-                    state = returnedStatus
-                    switch(state){
-                        case GameStates.LOADING:
-                            hideShow("#loading")
-                            break
-                        case GameStates.LOCKED:
-                            hideShow("#locked")
-                            break
-                        case GameStates.OPEN:
-                            hideShow("#open")
-                            break
-                        case GameStates.BUZZED:
-                            hideShow("#buzzed")
-                            break
-                    }
+                    status = returnedStatus
+                    updateShowing()
                 });      
             });
-            //put rest of events out here.                              
+
+            socket.on('statusChange', (newStatus) => {
+                if(status != GameStates.BUZZED){
+                    status = newStatus
+                    updateShowing()
+                }     
+            })
+            //when clear status, also send current status              
+
+            $("#open").click(() => {               
+                socket.emit('buzzIn', () => {
+                    status = GameStates.BUZZED
+                    updateShowing()
+                });
+            });          
         });
         
 
 block style
     style.
-        #main{
+        .fillAll{
             padding: 0;
             width: 100%;
-            height: 100%
+            height: 100%;
+            margin: 0;
+            max-width: none
+        }
+
+        .centerParent{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0px;
+        }
+
+        h1 {
+            text-align: center;
+            margin:auto;
+            width: 50%
+        }
+
+        #lockedTxt{
+            color: #000000
+        }
+
+        #openTxt{
+            color: #000000
+        }
+
+        #buzzedTxt{
+            color: #000000
         }
 
 block content
-    div(class="container flex-fill" id="main")
-        #loading
+    div(class="fillAll container flex-fill")
+        #loading()
             h1 loading
-        #buzzed
-            h1 buzzed
-        #locked
-            h1 locked
-        #open
-            h1 open
+        div(class="centerParent fillAll" id="buzzed" style="background-color: #e68a00")
+            h1(id="buzzedTxt") YOU HAVE BUZZED IN
+        div(class="centerParent fillAll" id="locked" style="background-color: #a10000")
+            h1(id="lockedTxt") LOCKED
+        div(class="centerParent fillAll" id="open" style="background-color: #08a100")
+            h1(id="openTxt") TAP THE SCREEN TO BUZZ IN
         

@@ -10,9 +10,16 @@ block scripts
             GameStates = {}
 
             function updatePlayers() {
-                $("#ul").empty();
+                $("#joinedPlayer").empty();
                 for(player of playersList){               
-                    $("#ul").append("<li id='player'>" + player + "</li>")
+                    $("#joinedPlayers").append("<li id='player'>" + player + "</li>")
+                }
+            }
+
+            function updateBuzzed(){
+                $("#buzzedInList").empty();
+                for(player of buzzedList){               
+                    $("#buzzedInList").append("<li id='player'>" + player + "</li>")
                 }
             }
 
@@ -47,6 +54,11 @@ block scripts
                 updatePlayers()
             })
 
+            socket.on('buzzedIn', (buzzed) => {
+                buzzedList = buzzed
+                updateBuzzed()
+            })
+
             $("#locker").click(() => {
                 socket.emit('changeStatus', status, (newStatus) => {
                     status = newStatus
@@ -73,11 +85,13 @@ block content
                     button(id="clear" type="button" class="btn btn-secondary") Reset
 
         //What to have
-        //Open/Lock Button
+        #BuzzList
+            h3 Buzzed In Players
+            ol#buzzedInList
         //Buzz List
         //Clear
         #players
             h6 Joined Players
-            ul#ul
+            ul#joinedPlayers
         
 

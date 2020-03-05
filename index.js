@@ -28,8 +28,6 @@ app.get('/host', function(req, res) {
 
 //make go to the player name
 app.get('/player/*', function(req, res){
-    console.log('here')
-    console.log(req.url)
     res.render('player', {player: "test"})   
 })
 
@@ -38,8 +36,8 @@ hostIds = []
 buzzed = []
 status = GameStates.OPEN
 
-io.on('connection', function (socket) {
-    socket.on('addPlayer', function(data, fn){
+io.of('/player').on('connect', (socket) => {
+    socket.on('addPlayer', function (data, fn) {
         players[data['userId']] = data['name'];
         fn(status, GameStates)
         io.of('/host').emit('updatePlayers', Object.values(players));
@@ -47,12 +45,19 @@ io.on('connection', function (socket) {
     })
 
     socket.on('disconnect', (reason) => {
-        if(socket.id in players){
+        if (socket.id in players) {
             delete players[socket.id];
             io.of('/host').emit('updatePlayers', Object.values(players));
-        }       
+        }
+        console.log(players)
     })
-});
+
+    socket.on('buzzIn', (fn) => {
+        buzzed.push(players[socket.id])
+        fn()
+        io.of('/host').emit('buzzedIn', buzzed);
+    });
+})
 
 io.of('/host').on('connect', (socket) => {
     hostIds.push(socket.id);
@@ -66,14 +71,16 @@ io.of('/host').on('connect', (socket) => {
     })
 
     socket.on('changeStatus', (oldStatus, fn) => {
-        if(oldStatus == GameStates.OPEN){
+        if (oldStatus == GameStates.OPEN) {
             status = GameStates.LOCKED
             fn(status)
-        } else if (oldStatus == GameStates.LOCKED){
+        } else if (oldStatus == GameStates.LOCKED) {
             status = GameStates.OPEN
             fn(status)
         }
-        console.log(status)
+        if(oldStatus != status){
+            io.of('/player').emit('statusChange', status);
+        }
     })
 })
 
