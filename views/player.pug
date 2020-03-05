@@ -6,8 +6,9 @@ block scripts
         socket.on('connect', () => {
             var data = {name: window.location.href.substring(window.location.href.search("player/") + 7), userId: socket.id}
             socket.emit('addPlayer', data);
-            $("#main").show()
+            $("#main").show()            
         })
+        //put rest of events out here.
 
 block content
     div(class="container" id="main")

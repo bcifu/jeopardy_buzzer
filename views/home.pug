@@ -23,6 +23,10 @@ block scripts
                 } else {
                     window.location.href = '/player/' + $("#name").val().replace(/\s/g,'');
                 }             
+            });
+
+            $("#host").click(() => {
+                window.location.href = '/host'
             })
         });
 
@@ -37,4 +41,4 @@ block content
                 input(class='btn btn-primary col container-fluid' type="button" value="Join" id="submit")
                 h3(id="warning" class='text-danger' style="display:none") Please enter a name
             div(class="row")
-                button(type="button" class="btn btn-secondary btn-block btn-lg") Host Game
+                button(type="button" class="btn btn-secondary btn-block btn-lg" id="host") Host Game

@@ -1,0 +1,19 @@
+extends layout.pug
+
+block scripts
+    script.
+        var socket = io()
+        buzzedList = []
+        playersList = []
+        status = GameStates.LOADING
+        socket.on('connect', () => {
+            socket.emit('setUpHost', (statusRes, players, buzzed) => {
+                status = statusRes
+                playersList = players
+                buzzedList = buzzed
+                console.log(playersList)             
+           })
+        })
+
+block content
+    div(class="container")
