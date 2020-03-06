@@ -7,6 +7,7 @@ block scripts
             var status = "loading";
             var GameStates = {}
             var divNames = ["#loading", "#buzzed", "#locked", "#open"]
+            var buzzPosition = undefined
             function hideShow(show){
                 for(div of divNames){
                     $(div).hide()
@@ -27,6 +28,12 @@ block scripts
                         break
                     case GameStates.BUZZED:
                         hideShow("#buzzed")
+                        console.log(buzzPosition)
+                        if(buzzPosition != undefined){
+                            $("#buzzedPosition").text("Your buzz position: " + buzzPosition)
+                        } else {
+                            $("#buzzedPosition").empty()
+                        }
                         break
                 }
             }
@@ -51,7 +58,8 @@ block scripts
             //when clear status, also send current status              
 
             $("#open").click(() => {               
-                socket.emit('buzzIn', () => {
+                socket.emit('buzzIn', (position) => {
+                    buzzPosition = position
                     status = GameStates.BUZZED
                     updateShowing()
                 });
@@ -59,6 +67,7 @@ block scripts
 
             socket.on('clearBuzz', (newStatus) => {
                 status = newStatus
+                buzzPosition = undefined
                 updateShowing()
             })          
         });
@@ -78,17 +87,12 @@ block style
             display: flex;
             justify-content: center;
             align-items: center;
+            flex-direction: column
         }
 
         html, body {
             height: 100%;
             margin: 0px;
-        }
-
-        h1 {
-            text-align: center;
-            margin:auto;
-            width: 50%
         }
 
         #lockedTxt{
@@ -109,6 +113,7 @@ block content
             h1 loading
         div(class="centerParent fillAll" id="buzzed" style="background-color: #e68a00")
             h1(id="buzzedTxt") YOU HAVE BUZZED IN
+            h3(id="buzzedPosition" style="color: #000000")
         div(class="centerParent fillAll" id="locked" style="background-color: #a10000")
             h1(id="lockedTxt") LOCKED
         div(class="centerParent fillAll" id="open" style="background-color: #08a100")

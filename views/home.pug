@@ -46,10 +46,11 @@ block content
         h1 Setup
         div(class="container")
             div(class="row")
-                button(type="button" class="btn btn-primary btn-block btn-lg" id="join") Join game
-            form(class='row' id="joinGame" style="display:none")
-                input(class='form-control col-10 container-fluid' type="text" id="name" placeholder="Name" style="margin-right: 5px")
+                button(type="button" class="btn btn-primary btn-block btn-lg" id="join" style="height: 100px") Join game
+            form(class='row' id="joinGame" style="display:none; height: 100px; margin-bottom: 5px")
+                input(class='form-control col-10 container-fluid' type="text" id="name" placeholder="Name" style="margin-right: 5px; height: 100px")
                 input(class='btn btn-primary col container-fluid' type="button" value="Join" id="submit")
+            div(class="row")
                 h3(id="warning" class='text-danger' style="display:none") Please enter a name
             div(class="row")
-                button(type="button" class="btn btn-secondary btn-block btn-lg" id="host") Host Game
+                button(type="button" class="btn btn-secondary btn-block btn-lg" id="host" style="height: 100px") Host Game

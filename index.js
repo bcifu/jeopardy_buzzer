@@ -42,8 +42,9 @@ io.of('/player').on('connect', (socket) => {
     })
 
     socket.on('buzzIn', (fn) => {
-        buzzed.push(players[socket.id])
-        fn()
+        position = buzzed.push(players[socket.id])
+        console.log(position)
+        fn(position)
         io.of('/host').emit('buzzedIn', buzzed);
     });
 })
@@ -74,6 +75,7 @@ io.of('/host').on('connect', (socket) => {
     })
 })
 
-http.listen(3000, function () {
-    console.log('listening on *:3000');
+var port = process.env.PORT || 3000
+http.listen(port, function () {
+    console.log('listening on *:' + port);
 });

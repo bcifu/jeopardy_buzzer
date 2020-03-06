@@ -80,18 +80,18 @@ block scripts
 
 block content
     div(id="main", class="container flex-fill")
-        h2#status Status: loading
+        h2(id="status" style="text-align: center") Status: loading
         div(class="container" id="buttons")
-            div(class="row")
-                div(class="column")
-                    button(id="locker" type="button" class="btn btn-danger") Lock
-                div(class="column")
-                    button(id="clear" type="button" class="btn btn-secondary") Reset
+            div(class="row")      
+                button(id="locker" type="button" class="btn btn-danger col" style="height: 100px; margin: 5px") Lock
+                button(id="clear" type="button" class="btn btn-secondary col" style="height: 100px; margin: 5px") Reset
 
         //What to have
         #BuzzList
-            h3 Buzzed In Players
-            ol#buzzedInList
+            div(class="container d-flex justify-content-center")
+                div
+                    h3(style="text-align: center") Buzzed In Players
+                    ol#buzzedInList
         //Buzz List
         //Clear
         #players
